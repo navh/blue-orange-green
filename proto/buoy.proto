@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package buoy;
+
+option go_package = "buoyboy/proto";
+
+message BuoyStatus {
+    uint64 buoy_id = 1;
+    uint64 report_id = 2;
+    int64 timestamp = 3;       // Unix timestamp
+
+    
+    // Position data
+    double latitude = 4;
+    double longitude = 5;
+    double depth_meters = 6;
+    
+    // Environmental data
+    double temp_celsius = 7;
+    
+    // Accelerometer readings
+    double accel_x = 8;
+    double accel_y = 9;
+    double accel_z = 10;
+    
+    // System status
+    int32 battery_level_percent = 11;
+}
