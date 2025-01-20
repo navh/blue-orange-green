@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 	"time"
 
@@ -13,9 +14,25 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
+func TestMain(m *testing.M) {
+	// Set up
+	var err error
+	db, err = initDB(":memory:") // Use in-memory SQLite for testing
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+	// Run tests
+	code := m.Run()
+
+	// Clean up
+	db.Close()
+	os.Exit(code)
+}
+
 func TestHandleBuoyReading(t *testing.T) {
 	// Create test message
-
 	testBuoy := &pb.BuoyStatus{
 		BuoyId:              42,
 		ReportId:            12345,
@@ -44,5 +61,16 @@ func TestHandleBuoyReading(t *testing.T) {
 	// Check we got OK response
 	if w.Result().StatusCode != http.StatusOK {
 		t.Errorf("Expected status OK; got %v", w.Result().Status)
+	}
+
+	// Verify the data was actually saved
+	var count int
+	err = db.QueryRow("SELECT COUNT(*) FROM buoy_readings WHERE buoy_id = ? AND report_id = ?",
+		testBuoy.BuoyId, testBuoy.ReportId).Scan(&count)
+	if err != nil {
+		t.Fatalf("Failed to query database: %v", err)
+	}
+	if count != 1 {
+		t.Errorf("Expected 1 record in database, got %d", count)
 	}
 }
