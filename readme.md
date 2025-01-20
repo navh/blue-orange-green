@@ -4,7 +4,7 @@
 
 I used the following file to build the backend versions of the protobuf boilerplate:
 ```sh
-protoc --go_out=backend --go_opt=paths=source_relative proto/buoy.proto
+protoc --python_out=simbuoy --go_out=backend --go_opt=paths=source_relative proto/buoy.proto
 ```
 If you don't have protoc-gen-go installed, then use:
 ```sh 
